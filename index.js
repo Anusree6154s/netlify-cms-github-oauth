@@ -23,17 +23,21 @@ const config = {
 const client = new AuthorizationCode(config);
 
 app.get("/auth", (req, res) => {
+  const siteUrl = new URL(req.query.site);
+  const cleanSite = `${siteUrl.origin}${siteUrl.pathname}`;
   const authorizationUri = client.authorizeURL({
-    redirect_uri: `${req.query.site}/api/auth/callback`,
+    redirect_uri: `${cleanSite}/api/auth/callback`,
     state: req.query.state,
   });
   res.redirect(authorizationUri);
 });
 
 app.get("/auth/callback", async (req, res) => {
+  const siteUrl = new URL(req.query.site);
+  const cleanSite = `${siteUrl.origin}${siteUrl.pathname}`;
   const tokenParams = {
     code: req.query.code,
-    redirect_uri: `${req.query.site}/api/auth/callback`,
+    redirect_uri: `${cleanSite}/api/auth/callback`,
   };
 
   try {
@@ -41,7 +45,9 @@ app.get("/auth/callback", async (req, res) => {
     const token = accessToken.token.access_token;
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ error: "Authentication failed", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Authentication failed", details: err.message });
   }
 });
 
