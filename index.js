@@ -27,7 +27,7 @@ app.get("/auth", (req, res) => {
   const cleanSite = `${siteUrl.origin}${siteUrl.pathname}`;
   const authorizationUri = client.authorizeURL({
     redirect_uri: `${cleanSite}/api/auth/callback`,
-    state: req.query.state,
+    state: req.query.state || "netlify-cms-dev",
   });
   res.redirect(authorizationUri);
 });
@@ -38,6 +38,7 @@ app.get("/auth/callback", async (req, res) => {
   const tokenParams = {
     code: req.query.code,
     redirect_uri: `${cleanSite}/api/auth/callback`,
+    state: req.query.state || "netlify-cms-dev",
   };
 
   try {
